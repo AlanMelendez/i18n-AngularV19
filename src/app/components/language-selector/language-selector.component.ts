@@ -10,6 +10,7 @@ import { LanguageService } from '../../services/language.service';
 export class LanguageSelectorComponent {
 
   languageService = inject(LanguageService);
+  currentLang = this.languageService.currentLang;
 
   protected languages = signal([
     { code: 'en', flag: '🇺🇸' },
@@ -17,6 +18,12 @@ export class LanguageSelectorComponent {
     { code: 'fr', flag: '🇫🇷' },
     { code: 'it', flag: '🇮🇹' },
   ]);
+
+  /**
+   *
+   */
+  constructor() {
+  }
 
 
   onChangeLanguage(lang: Event) {
