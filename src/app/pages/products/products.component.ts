@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageSelectorComponent } from "../../components/language-selector/language-selector.component";
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,4 +10,6 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './products.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ProductsComponent { }
+export default class ProductsComponent {
+  fullName = signal('Angular Signals i18n');
+ }
