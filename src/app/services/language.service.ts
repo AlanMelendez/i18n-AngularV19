@@ -19,7 +19,7 @@ export class LanguageService {
     this.translate.use(lang);
     this.currentLang.set(lang);
 
-    console.log('Language changed to', this.currentLang());
+    // console.log('Language changed to', this.currentLang());
   }
 
 }
