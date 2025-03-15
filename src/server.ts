@@ -3,16 +3,24 @@ import {
   createNodeRequestHandler,
   isMainModule,
   writeResponseToNodeResponse,
+  CommonEngine,
 } from '@angular/ssr/node';
 import express from 'express';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+//Import Bootstrap and another variables to use in the server side and render the app.
+import bootstrap from './main.server';
+import { APP_BASE_HREF } from '@angular/common';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
+const indexHtml = join(serverDistFolder, 'index.server.html');
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+const commonEngine = new CommonEngine();
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -34,7 +42,7 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
-  }),
+  })
 );
 
 /**
@@ -44,9 +52,38 @@ app.use('/**', (req, res, next) => {
   angularApp
     .handle(req)
     .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
+      response ? writeResponseToNodeResponse(response, res) : next()
     )
     .catch(next);
+});
+
+// Create request to get the cookie
+app.get('*', (req, res, next) => {
+  const { protocol, originalUrl, baseUrl, headers } = req;
+
+  commonEngine
+
+    .render({
+      bootstrap,
+
+      documentFilePath: indexHtml,
+
+      url: `${protocol}://${headers.host}${originalUrl}`,
+
+      publicPath: browserDistFolder,
+
+      providers: [
+        { provide: APP_BASE_HREF, useValue: baseUrl },
+
+        { provide: 'REQUEST', useValue: req },
+
+        { provide: 'RESPONSE', useValue: res },
+      ],
+    })
+
+    .then((html) => res.send(html))
+
+    .catch((err) => next(err));
 });
 
 /**
